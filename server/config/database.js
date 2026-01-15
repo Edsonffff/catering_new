@@ -6,7 +6,7 @@ const pool = mysql.createPool({
   user: process.env.uyma5kwvwow2rv6d,        // Clever Cloud user
   password: process.env.cUAcn7BETSErzsIedLVO,// Clever Cloud password
   database: process.env.bm5pxvym0henlez4xrxz,    // Clever Cloud database name
-  port: process.env.3306,
+  port: process.env.3306 || 3306,
 
   waitForConnections: true,
   connectionLimit: 10,
@@ -32,5 +32,6 @@ pool.getConnection((err, connection) => {
 });
 
 module.exports = promisePool;
+
 
 
