@@ -24,7 +24,17 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://catering-new-5.onrender.com',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+app.options('*', cors());
 
 /* -------------------- BODY PARSERS -------------------- */
 app.use(express.json());
@@ -76,3 +86,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
