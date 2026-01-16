@@ -19,7 +19,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check existing user
     const [existing] = await db.query(
       'SELECT id FROM users WHERE email = ?',
       [email]
@@ -32,19 +31,15 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Insert user
-const [result] = await db.query(
-  'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
-  [name, email, hashedPassword, phone || null, 'customer']
-);
+    const [result] = await db.query(
+      'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, phone || null, 'customer']
+    );
 
-// 👇 ADD THIS LINE (VERY IMPORTANT)
-console.log('✅ INSERT RESULT:', result);
+    console.log('✅ USER INSERTED:', result.insertId);
 
-    // Create token
     const token = jwt.sign(
       { id: result.insertId, email, role: 'customer' },
       process.env.JWT_SECRET,
@@ -63,10 +58,11 @@ console.log('✅ INSERT RESULT:', result);
     });
 
   } catch (error) {
-    console.error('REGISTER ERROR:', error);
+    console.error('🔥 REGISTER ERROR:', error);
     return res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: 'Server error',
+      error: error.message
     });
   }
 });
@@ -117,15 +113,15 @@ router.post('/login', async (req, res) => {
       }
     });
 
- } catch (error) {
-  console.error('🔥 REGISTER ERROR FULL:', error);
-
-  return res.status(500).json({
-    success: false,
-    message: 'Server error',
-    error: error.message
-  });
-}
+  } catch (error) {
+    console.error('🔥 LOGIN ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
 
 /**
  * CURRENT USER
@@ -148,5 +144,3 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
-
-
