@@ -117,14 +117,15 @@ router.post('/login', async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.error('LOGIN ERROR:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-});
+ } catch (error) {
+  console.error('🔥 REGISTER ERROR FULL:', error);
+
+  return res.status(500).json({
+    success: false,
+    message: 'Server error',
+    error: error.message
+  });
+}
 
 /**
  * CURRENT USER
@@ -147,4 +148,5 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
+
 
