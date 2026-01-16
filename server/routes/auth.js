@@ -35,11 +35,14 @@ router.post('/register', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-   // Insert user
+  // Insert user
 const [result] = await db.query(
   'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
   [name, email, hashedPassword, phone || null, 'customer']
 );
+
+// 👇 ADD THIS LINE (VERY IMPORTANT)
+console.log('✅ INSERT RESULT:', result);
 
     // Create token
     const token = jwt.sign(
@@ -144,3 +147,4 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
+
