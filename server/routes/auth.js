@@ -141,5 +141,13 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
+const [result] = await db.query(
+  'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
+  [name, email, hashedPassword, phone || null, 'customer']
+);
+
+console.log('INSERT RESULT →', result);
+
+
 
 
