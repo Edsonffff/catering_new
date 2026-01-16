@@ -54,15 +54,60 @@ router.post('/register', async (req, res) => {
     const { name, email, password, phone } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide name, email and password' });
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide name, email and password'
+      });
     }
 
     // Check if user already exists
-    const [existingUsers] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-    
+    const [existingUsers] = await db.query(
+      'SELECT id FROM users WHERE email = ?',
+      [email]
+    );
+
     if (existingUsers.length > 0) {
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      return res.status(400).json({
+        success: false,
+        message: 'Email already registered'
+      });
     }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ FIXED INSERT (includes phone)
+    const [result] = await db.query(
+      'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, phone || null, 'customer']
+    );
+
+    // Generate token
+    const token = jwt.sign(
+      { id: result.insertId, email, role: 'customer' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    );
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: {
+        id: result.insertId,
+        email,
+        name,
+        role: 'customer'
+      }
+    });
+
+  } catch (error) {
+    console.error('REGISTER ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -111,3 +156,4 @@ router.get('/me', protect, async (req, res) => {
 });
 
 module.exports = router;
+
